@@ -1,0 +1,272 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechChat - Computer Advisor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+        }
+        .chat-bubble {
+            border-radius: 20px;
+            max-width: 70%;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            position: relative;
+        }
+        .user-bubble {
+            background-color: #4f46e5;
+            color: white;
+            align-self: flex-end;
+        }
+        .bot-bubble {
+            background-color: #f3f4f6;
+            color: #1f2937;
+            align-self: flex-start;
+        }
+        .computer-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .computer-card img {
+            width: 100%;
+            height: 120px;
+            object-fit: contain;
+            background-color: #f9fafb;
+        }
+        .computer-card-content {
+            padding: 12px;
+        }
+        .computer-card-title {
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .computer-card-spec {
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+            color: #4b5563;
+            margin-bottom: 4px;
+        }
+        .computer-card-spec i {
+            margin-right: 6px;
+            color: #6b7280;
+        }
+        .computer-card-price {
+            font-weight: 700;
+            color: #1f2937;
+            margin-top: 8px;
+        }
+        .computer-card-button {
+            width: 100%;
+            margin-top: 8px;
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+        .chat-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .chat-option-button {
+            background-color: #d1d5db;
+            color: #1f2937;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+        .chat-option-button:hover {
+            background-color: #9ca3af;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        {% include 'chat_app/_header.html' %}
+       
+        {% include 'chat_app/_chat_container.html' %}
+    
+       
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatContainer = document.getElementById('chatContainer');
+            const chatInput = document.getElementById('chatInput');
+            const sendMessageBtn = document.getElementById('sendMessageBtn');
+            const initialOptions = document.getElementById('initialOptions');
+
+            // Sample computer data (we'll fetch this from Django later)
+            const computerDatabase = [
+                { name: "MacBook Pro 14\"", type: "laptop", brand: "apple", price: 1999, processor: "M1 Pro", ram: 16, storage: "512GB SSD", image: "https://via.placeholder.com/300x200?text=MacBook+Pro+14", uses: ["design", "architecture"] },
+                { name: "Dell XPS 13", type: "laptop", brand: "dell", price: 999, processor: "Intel Core i5", ram: 8, storage: "256GB SSD", image: "https://via.placeholder.com/300x200?text=Dell+XPS+13", uses: ["office", "browsing"] },
+                { name: "HP Spectre x360", type: "laptop", brand: "hp", price: 1299, processor: "Intel Core i7", ram: 16, storage: "512GB SSD", image: "https://via.placeholder.com/300x200?text=HP+Spectre+x360", uses: ["design", "office"] },
+                { name: "Lenovo ThinkPad X1 Carbon", type: "laptop", brand: "lenovo", price: 1499, processor: "Intel Core i7", ram: 16, storage: "512GB SSD", image: "https://via.placeholder.com/300x200?text=Lenovo+ThinkPad+X1", uses: ["business", "programming"] },
+                { name: "Asus ROG Zephyrus", type: "gaming", brand: "asus", price: 1799, processor: "AMD Ryzen 9", ram: 32, storage: "1TB SSD", image: "https://via.placeholder.com/300x200?text=Asus+ROG+Zephyrus", uses: ["gaming", "video editing"] },
+                { name: "Apple iMac 24\"", type: "desktop", brand: "apple", price: 1299, processor: "M1", ram: 8, storage: "256GB SSD", image: "https://via.placeholder.com/300x200?text=Apple+iMac+24", uses: ["design", "office"] },
+                { name: "Dell Alienware Aurora", type: "gaming", brand: "dell", price: 2199, processor: "Intel Core i9", ram: 32, storage: "1TB SSD + 2TB HDD", image: "https://via.placeholder.com/300x200?text=Dell+Alienware", uses: ["gaming", "high performance"] },
+                { name: "Microsoft Surface Laptop 4", type: "laptop", brand: "microsoft", price: 1199, processor: "Intel Core i5", ram: 8, storage: "256GB SSD", image: "https://via.placeholder.com/300x200?text=Surface+Laptop+4", uses: ["office", "portability"] }
+            ];
+
+            let currentQuestion = "initial";
+            let userPreferences = {};
+
+            function addMessageToChat(message, sender) {
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('chat-bubble');
+
+                if (sender === 'user') {
+                    messageElement.classList.add('user-bubble');
+                } else {
+                    messageElement.classList.add('bot-bubble');
+                }
+
+                messageElement.innerHTML = `<p>${message}</p>`;
+                chatContainer.appendChild(messageElement);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+
+            function addComputerCardToChat(computer) {
+                const cardElement = document.createElement('div');
+                cardElement.classList.add('chat-bubble', 'bot-bubble');
+
+                cardElement.innerHTML = `
+                    <div class="computer-card">
+                        <img src="${computer.image}" alt="${computer.name}">
+                        <div class="computer-card-content">
+                            <div class="computer-card-title">${computer.name}</div>
+                            <div class="computer-card-spec">
+                                <i class="fas fa-microchip"></i>
+                                <span>${computer.processor}</span>
+                            </div>
+                            <div class="computer-card-spec">
+                                <i class="fas fa-memory"></i>
+                                <span>${computer.ram}GB RAM</span>
+                            </div>
+                            <div class="computer-card-spec">
+                                <i class="fas fa-hdd"></i>
+                                <span>${computer.storage}</span>
+                            </div>
+                            <div class="computer-card-price">
+                                <i class="fas fa-dollar-sign"></i>
+                                <span>${computer.price.toLocaleString()}</span>
+                            </div>
+                            <button class="computer-card-button gradient-bg text-white rounded hover:opacity-90 transition duration-300">
+                                <i class="fas fa-shopping-cart mr-1"></i> Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                chatContainer.appendChild(cardElement);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+
+            function showOptions(options, questionId) {
+                const optionsContainer = document.createElement('div');
+                optionsContainer.classList.add('chat-options');
+                optionsContainer.id = questionId + 'Options';
+
+                options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.classList.add('chat-option-button');
+                    button.textContent = option.label;
+                    button.dataset.value = option.value;
+                    button.addEventListener('click', handleOptionClick);
+                    optionsContainer.appendChild(button);
+                });
+
+                const lastBotBubble = chatContainer.querySelector('.bot-bubble:last-child');
+                if (lastBotBubble) {
+                    lastBotBubble.appendChild(optionsContainer);
+                }
+            }
+
+            function handleOptionClick(event) {
+                const selectedOption = event.target.dataset.value;
+                const selectedLabel = event.target.textContent;
+
+                addMessageToChat(selectedLabel, 'user');
+
+                // Disable current options
+                const currentOptionsContainer = event.target.parentNode;
+                if (currentOptionsContainer) {
+                    currentOptionsContainer.remove();
+                }
+
+                processUserResponse(selectedOption);
+            }
+
+            function processUserResponse(response) {
+                if (currentQuestion === "initial") {
+                    userPreferences.type = response;
+                    currentQuestion = "budget";
+                    setTimeout(() => {
+                        addMessageToChat("Great! What is your approximate budget in RMB?", 'bot');
+                        chatInput.disabled = false;
+                        sendMessageBtn.disabled = false;
+                    }, 500);
+                } else if (currentQuestion === "budget") {
+                    userPreferences.budget = parseInt(response);
+                    currentQuestion = "needs";
+                    setTimeout(() => {
+                        addMessageToChat("Okay, and what will you primarily use this computer for? (e.g., architecture software, general use, gaming)", 'bot');
+                    }, 500);
+                } else if (currentQuestion === "needs") {
+                    userPreferences.needs = response.toLowerCase();
+                    // For now, let's just show the results based on the collected preferences
+                    setTimeout(() => {
+                        const filteredComputers = computerDatabase.filter(computer => {
+                            let matches = true;
+                            if (userPreferences.type && computer.type !== userPreferences.type) matches = false;
+                            if (userPreferences.budget && computer.price > userPreferences.budget) matches = false;
+                            if (userPreferences.needs && !computer.uses.some(use => userPreferences.needs.includes(use))) matches = false;
+                            return matches;
+                        });
+
+                        if (filteredComputers.length > 0) {
+                            addMessageToChat(`Based on your needs, here are a few suggestions:`, 'bot');
+                            filteredComputers.forEach(addComputerCardToChat);
+                        } else {
+                            addMessageToChat("I couldn't find any computers that perfectly match your criteria. Would you like to refine your search?", 'bot');
+                            // Potentially offer more guided options here
+                        }
+                        currentQuestion = "finished";
+                        chatInput.placeholder = "Chat is finished.";
+                        chatInput.disabled = true;
+                        sendMessageBtn.disabled = true;
+                    }, 1000);
+                }
+            }
+
+            sendMessageBtn.addEventListener('click', function() {
+                if (!chatInput.disabled) {
+                    const message = chatInput.value.trim();
+                    if (message) {
+                        addMessageToChat(message, 'user');
+                        chatInput.value = '';
+                        processUserResponse(message);
+                    }
+                }
+            });
+
+            chatInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !chatInput.disabled) {
+                    sendMessageBtn.click();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

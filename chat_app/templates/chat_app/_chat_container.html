@@ -1,0 +1,21 @@
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div class="lg:col-span-2 bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="p-4 border-b border-gray-200 bg-gray-50 flex items-center">
+            <div class="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+            <h3 class="font-medium text-gray-800">Tech Support Bot</h3>
+        </div>
+
+        <div id="chatContainer" class="p-4 h-96 overflow-y-auto flex flex-col space-y-2">
+            <div class="chat-bubble bot-bubble">
+                <p>Hello! I'm here to help you find the perfect computer. To get started, are you looking for a laptop or a desktop?</p>
+                <div class="chat-options" id="initialOptions">
+                    <button class="chat-option-button" data-option="laptop">Laptop</button>
+                    <button class="chat-option-button" data-option="desktop">Desktop</button>
+                </div>
+            </div>
+        </div>
+
+        {% include 'chat_app/_chat_input.html' %}
+        
+    </div>
+</div>

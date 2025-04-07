@@ -1,0 +1,63 @@
+
+.gradient-bg {
+    background: linear-gradient(135deg, #6e8efb, #a777e3);
+}
+.chat-bubble {
+    border-radius: 20px;
+    max-width: 70%;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    position: relative;
+}
+.user-bubble {
+    background-color: #4f46e5;
+    color: white;
+    align-self: flex-end;
+}
+.bot-bubble {
+    background-color: #f3f4f6;
+    color: #1f2937;
+    align-self: flex-start;
+}
+.computer-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.computer-card img {
+    width: 100%;
+    height: 120px;
+    object-fit: contain;
+    background-color: #f9fafb;
+}
+.computer-card-content {
+    padding: 12px;
+}
+.computer-card-title {
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+.computer-card-spec {
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+    color: #4b5563;
+    margin-bottom: 4px;
+}
+.computer-card-spec i {
+    margin-right: 6px;
+    color: #6b7280;
+}
+.computer-card-price {
+    font-weight: 700;
+    color: #1f2937;
+    margin-top: 8px;
+}
+.computer-card-button {
+    width: 100%;
+    margin-top: 8px;
+    padding: 6px 12px;
+    font-size: 13px;
+}
