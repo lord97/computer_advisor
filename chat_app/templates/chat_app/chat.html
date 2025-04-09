@@ -139,7 +139,53 @@
                     })
                     .then(response => response.json())
                     .then(data => {
-                        if (data.bot_response) {
+                        if (data.description ) {
+                            addMessageToChat(data.description, 'bot');
+                        }
+                        if (data.ordinateurs && data.ordinateurs.length > 0) {
+                            chatContainer.innerHTML = '';
+                            addMessageToChat("Here are the computers I found:", 'bot');
+                            data.ordinateurs.forEach(ordinateur => {
+                                const ordinateurHTML = `
+                                    <div class="computer-card">
+                                        ${ordinateur.image ? `<img src="${ordinateur.image}" alt="${ordinateur.nom_modele}">` : '<div class="h-24 bg-gray-100 flex items-center justify-center text-gray-400">No Image</div>'}
+                                        <div class="computer-card-content">
+                                            <div class="computer-card-title">${ordinateur.nom_modele}</div>
+                                            <div class="computer-card-spec">
+                                                <i class="fas fa-microchip"></i>
+                                                <span>${ordinateur.processeur}</span>
+                                            </div>
+                                            <div class="computer-card-spec">
+                                                <i class="fas fa-memory"></i>
+                                                <span>${ordinateur.memoire_ram} GB RAM</span>
+                                            </div>
+                                            <div class="computer-card-spec">
+                                                <i class="fas fa-hdd"></i>
+                                                <span>${ordinateur.stockage}</span>
+                                            </div>
+                                            ${ordinateur.carte_graphique ? `<div class="computer-card-spec"><i class="fas fa-display"></i> <span>${ordinateur.carte_graphique}</span></div>` : ''}
+                                            <div class="computer-card-price">
+                                                <i class="fas fa-dollar-sign"></i>
+                                                <span>${ordinateur.prix.toLocaleString()} RMB</span>
+                                            </div>
+                                            <div class="computer-card-spec">
+                                                <i class="fas fa-tags"></i>
+                                                <span>Utilisations : ${ordinateur.utilisations_recommandees}</span>
+                                            </div>
+                                            <p class="text-sm mt-2">${ordinateur.description.substring(0, 100)}...</p>
+                                            <button class="computer-card-button gradient-bg text-white rounded hover:opacity-90 transition duration-300">
+                                                <i class="fas fa-info-circle mr-1"></i> Détails
+                                            </button>
+                                        </div>
+                                    </div>
+                                `;
+                                const messageElement = document.createElement('div');
+                                messageElement.classList.add('chat-bubble', 'bot-bubble');
+                                messageElement.innerHTML = ordinateurHTML;
+                                chatContainer.appendChild(messageElement);
+                                chatContainer.scrollTop = chatContainer.scrollHeight;
+                            });
+                        } else if (data.bot_response) {
                             addMessageToChat(data.bot_response, 'bot');
                         } else if (data.error) {
                             addMessageToChat(`Error: ${data.error}`, 'bot');
